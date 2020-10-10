@@ -14,7 +14,7 @@ def initialize_weights(in_size,out_size,params,name=''):
     ##########################
     ##### your code here #####
     ##########################
-    a = 2. / (in_size + out_size)
+    a = np.sqrt(6. / (in_size + out_size))
     W = np.random.uniform(low=-a, high=a, size=(in_size, out_size))
     b = np.zeros((out_size))
 
