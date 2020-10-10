@@ -62,17 +62,43 @@ with open('q3_weights.pickle', 'wb') as handle:
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-# visualize weights here
-##########################
-##### your code here #####
-##########################
+fig = plt.figure(1, (8., 8.))
+if hidden_size < 128:
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                    nrows_ncols=(8, 8),  # creates 2x2 grid of axes
+                    axes_pad=0.1,  # pad between axes in inch.
+                    )
+    img_w = params['Wlayer1'].reshape((32,32,hidden_size))
+    for i in range(hidden_size):
+        grid[i].imshow(img_w[:,:,i])  # The AxesGrid object work as a list of axes.
+
+    plt.show()
 
 # Q3.1.4
 
-# visualize 2nd layer weights here
-##########################
-##### your code here #####
-##########################
+fig = plt.figure(1, (6., 8.))
+grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(12, 6),  # creates 2x2 grid of axes
+                 axes_pad=0.1,  # pad between axes in inch.
+                 )
+
+indices = params['cache_output'][2].argmax(axis=0)
+images = valid_x[indices]
+images = images.reshape(36, 32, 32)
+
+vis = np.zeros((36, 1024))
+inps = np.eye(36)
+for i,inp in enumerate(inps):
+    vis[i] = inp @ params['Woutput'].T @ params['Wlayer1'].T 
+vis = vis.reshape(36, 32, 32)
+
+displayed = np.zeros((72, 32, 32))
+displayed[::2] = images
+displayed[1::2] = vis
+for ax, im in zip(grid, displayed):
+    ax.imshow(im.T)
+plt.savefig("out.jpg")
+plt.show()
 
 # Q3.1.5
 confusion_matrix = np.zeros((train_y.shape[1],train_y.shape[1]))
