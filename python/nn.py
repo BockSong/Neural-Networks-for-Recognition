@@ -30,6 +30,7 @@ def sigmoid(x):
     ##########################
     ##### your code here #####
     ##########################
+    res = 1 / (1. + np.exp(-x))
 
     return res
 
@@ -49,11 +50,11 @@ def forward(X,params,name='',activation=sigmoid):
     W = params['W' + name]
     b = params['b' + name]
 
-
     ##########################
     ##### your code here #####
     ##########################
-
+    pre_act = np.dot(X, W) + b
+    post_act = activation(pre_act)
 
     # store the pre-activation and post-activation values
     # these will be important in backprop
@@ -65,11 +66,19 @@ def forward(X,params,name='',activation=sigmoid):
 # x is [examples,classes]
 # softmax should be done for each row
 def softmax(x):
-    res = None
+    examples, classes = x.shape[0], x.shape[1]
+    res = np.empty((examples, classes))
 
     ##########################
     ##### your code here #####
     ##########################
+    c = - np.max(x, axis=1)
+    c = np.reshape(c, (c.shape[0], 1))
+    xc = x + c
+
+    sumexp = np.sum(np.exp(xc), axis=1)
+    sumexp = sumexp.reshape((sumexp.shape[0], 1))
+    res = np.exp(xc) / sumexp
 
     return res
 
