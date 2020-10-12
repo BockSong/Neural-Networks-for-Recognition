@@ -84,7 +84,7 @@ def softmax(x):
 
 ############################## Q 2.2.3 ##############################
 # compute total loss and accuracy
-# y is size [examples,classes]
+# y is size [examples,classes], label
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
     loss, acc = None, None
@@ -92,6 +92,13 @@ def compute_loss_and_acc(y, probs):
     ##########################
     ##### your code here #####
     ##########################
+    label = np.argmax(y, axis=1)
+    pred = np.argmax(probs, axis=1)
+    corr = np.count_nonzero(np.where(label == pred, 1, 0)) * 1.
+    #print(label)
+    #print(pred)
+    acc = corr / label.shape[0]
+    loss = - np.sum(y * np.log(probs))
 
     return loss, acc 
 

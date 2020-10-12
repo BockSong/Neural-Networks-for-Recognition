@@ -32,29 +32,29 @@ assert(params['Wlayer1'].shape == (2,25))
 assert(params['blayer1'].shape == (25,))
 
 #expect 0, [0.05 to 0.12]
-print("{}, {:.2f}".format(params['blayer1'].sum(),params['Wlayer1'].std()**2))
-print("{}, {:.2f}".format(params['boutput'].sum(),params['Woutput'].std()**2))
+#print("{}, {:.2f}".format(params['blayer1'].sum(),params['Wlayer1'].std()**2))
+#print("{}, {:.2f}".format(params['boutput'].sum(),params['Woutput'].std()**2))
 
 # Q 2.2.1
 # implement sigmoid
 test = sigmoid(np.array([-1000,1000]))
-print('should be zero and one\t',test.min(),test.max())
+#print('should be zero and one\t',test.min(),test.max())
 # implement forward
 h1 = forward(x,params,'layer1')
-print(h1.shape)
+#print(h1.shape)
 # Q 2.2.2
 # implement softmax
 probs = forward(h1,params,'output',softmax)
 # make sure you understand these values!
 # positive, ~1, ~1, (40,4)
-print(probs.min(),min(probs.sum(1)),max(probs.sum(1)),probs.shape)
+#print(probs.min(),min(probs.sum(1)),max(probs.sum(1)),probs.shape)
 
 # Q 2.2.3
 # implement compute_loss_and_acc
 loss, acc = compute_loss_and_acc(y, probs)
 # should be around -np.log(0.25)*40 [~55] and 0.25
 # if it is not, check softmax!
-print("{}, {:.2f}".format(loss,acc))
+#print("{}, {:.2f}".format(loss,acc))
 
 # here we cheat for you
 # the derivative of cross-entropy(softmax(x)) is probs - 1[correct actions]
