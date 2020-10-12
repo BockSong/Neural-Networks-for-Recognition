@@ -51,6 +51,7 @@ probs = forward(h1,params,'output',softmax)
 
 # Q 2.2.3
 # implement compute_loss_and_acc
+#print("input shape: " + str(y.shape) + str(probs.shape))
 loss, acc = compute_loss_and_acc(y, probs)
 # should be around -np.log(0.25)*40 [~55] and 0.25
 # if it is not, check softmax!
@@ -88,20 +89,32 @@ for itr in range(max_iters):
     total_loss = 0
     avg_acc = 0
     for xb,yb in batches:
-        pass
+        #print(params)
         # forward
+        h1 = forward(xb, params, 'layer1')
+        probs = forward(h1,params,'output',softmax)
 
         # loss
+        #print("input shape: " + str(yb.shape) + str(probs.shape))
+        loss, acc = compute_loss_and_acc(yb, probs)
         # be sure to add loss and accuracy to epoch totals 
+        total_loss += loss
+        #print(acc)
+        avg_acc += acc
 
         # backward
+        delta1 = probs - yb
+        delta2 = backwards(delta1,params,'output',linear_deriv)
+        delta3 = backwards(delta2,params,'layer1',sigmoid_deriv)
 
         # apply gradient
+        params['W' + "output"] -= learning_rate * params['grad_W' + "output"]
+        params['b' + "output"] -= learning_rate * params['grad_b' + "output"]
 
-        ##########################
-        ##### your code here #####
-        ##########################
+        params['W' + "layer1"] -= learning_rate * params['grad_W' + "layer1"]
+        params['b' + "layer1"] -= learning_rate * params['grad_b' + "layer1"]
 
+    avg_acc /= batch_num
         
     if itr % 100 == 0:
         print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,avg_acc))

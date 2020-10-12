@@ -154,4 +154,20 @@ def get_random_batches(x,y,batch_size):
     ##########################
     ##### your code here #####
     ##########################
+    #print(x.shape)
+    #print(y.shape)
+    # remove edge data to match batch size
+    num = x.shape[0] // batch_size
+    new_shape = num * batch_size
+    x = x[:new_shape, :]
+    y = y[:new_shape, :]
+    # create batches
+    bx = np.split(x, num, axis=0)
+    by = np.split(y, num, axis=0)
+    #print(len(bx))
+    #print(len(by))
+    for i in range(num):
+        batches.append((bx[i], by[i]))
+    
+    #print(batches)
     return batches
