@@ -145,6 +145,46 @@ for k,v in params.items():
     ##########################
     ##### your code here #####
     ##########################
+    #print(k)
+    if v.ndim == 2:
+        for i in range(v.shape[0]):
+            for j in range(v.shape[1]):
+                tmp = v[i, j]
+
+                # compute f(x + eps)
+                v[i, j] = tmp + eps
+                h1 = forward(x, params, 'layer1')
+                probs = forward(h1,params,'output',softmax)
+                f1, _ = compute_loss_and_acc(y, probs)
+
+                # compute f(x - eps)
+                v[i, j] = tmp - eps
+                h1 = forward(x, params, 'layer1')
+                probs = forward(h1,params,'output',softmax)
+                f2, _ = compute_loss_and_acc(y, probs)
+
+                params["grad_" + k][i, j] = (f1 - f2) / (2 * eps)
+
+                v[i, j] = tmp
+    else:
+        for i in range(v.shape[0]):
+            tmp = v[i]
+
+            # compute f(x + eps)
+            v[i] = tmp + eps
+            h1 = forward(x, params, 'layer1')
+            probs = forward(h1,params,'output',softmax)
+            f1, _ = compute_loss_and_acc(y, probs)
+
+            # compute f(x - eps)
+            v[i] = tmp - eps
+            h1 = forward(x, params, 'layer1')
+            probs = forward(h1,params,'output',softmax)
+            f2, _ = compute_loss_and_acc(y, probs)
+
+            params["grad_" + k][i] = (f1 - f2) / (2 * eps)
+
+            v[i] = tmp
 
 total_error = 0
 for k in params.keys():
