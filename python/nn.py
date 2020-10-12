@@ -131,6 +131,15 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
     ##########################
     ##### your code here #####
     ##########################
+    dz = delta * activation_deriv(post_act)
+
+    #print(X.shape)
+    grad_X = np.dot(dz, W.T)
+    #print(W.shape)
+    grad_W = np.dot(X.T, dz)
+    grad_b = np.sum(dz, axis=0)
+    #print("b: " + str(b.shape))
+    #print("db" + str(grad_b.shape))
 
     # store the gradients
     params['grad_W' + name] = grad_W
