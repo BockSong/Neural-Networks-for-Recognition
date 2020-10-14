@@ -161,13 +161,14 @@ def get_random_batches(x,y,batch_size):
     new_shape = num * batch_size
     x = x[:new_shape, :]
     y = y[:new_shape, :]
+
+    # random sampling
+    indexs = np.random.permutation(new_shape)
+
     # create batches
-    bx = np.split(x, num, axis=0)
-    by = np.split(y, num, axis=0)
-    #print(len(bx))
-    #print(len(by))
+    idx_split = np.split(indexs, num)
     for i in range(num):
-        batches.append((bx[i], by[i]))
+        batches.append((x[idx_split[i]], y[idx_split[i]]))
     
     #print(batches)
     return batches
