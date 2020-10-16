@@ -3,4 +3,5 @@ __pycache__/
 data
 images
 *.jpg
+*.png
 *.pickle

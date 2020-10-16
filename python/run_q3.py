@@ -2,6 +2,9 @@ import numpy as np
 import scipy.io
 from nn import *
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
+
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
 valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 
@@ -11,7 +14,7 @@ valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 max_iters = 50
 # pick a batch size, learning rate
 batch_size = 8
-learning_rate = 1e-3
+learning_rate = 1e-2
 hidden_size = 64
 ##########################
 ##### your code here #####
@@ -21,6 +24,7 @@ output_size = 36
 
 batches = get_random_batches(train_x,train_y,batch_size)
 batch_num = len(batches)
+data_num = len(train_y)
 
 params = {}
 
@@ -34,9 +38,6 @@ assert(params['Wlayer1'].shape == (input_size, hidden_size))
 assert(params['blayer1'].shape == (hidden_size, ))
 
 # Q3.1.3
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
-
 def weight_visualize(name):
     fig = plt.figure(1, (8., 8.))
     if hidden_size < 128:
@@ -51,6 +52,9 @@ def weight_visualize(name):
         #plt.show()
 
 weight_visualize("weight_init.jpg")
+
+# draw plots
+train_accs, val_accs, avg_loss = [], [], []
 
 # with default settings, you should get loss < 150 and accuracy > 80%
 for itr in range(max_iters):
@@ -86,32 +90,25 @@ for itr in range(max_iters):
         params['b' + "layer1"] -= learning_rate * params['grad_b' + "layer1"]
 
     total_acc /= batch_num
+    total_loss /= data_num
 
     h1 = forward(valid_x, params, 'layer1')
     probs = forward(h1,params,'output',softmax)
     _, valid_acc = compute_loss_and_acc(valid_y, probs)
 
-    if itr % 2 == 0:
-        print("itr: {:02d} \t loss: {:.2f} \t train acc : {:.2f} \t val acc : {:.2f}".format(itr,total_loss,total_acc,valid_acc))
+    if (itr+1) % 2 == 0:
+        print("itr: {:02d} \t loss: {:.2f} \t train acc : {:.2f} \t val acc : {:.2f}".format((itr+1),total_loss,total_acc,valid_acc))
+
+    train_accs.append(total_acc)
+    val_accs.append(valid_acc)
+    avg_loss.append(total_loss)
 
 # run on validation set and report accuracy! should be above 75%
-valid_acc = 0
+#valid_acc = None
 ##########################
 ##### your code here #####
 ##########################
-
-val_batches = get_random_batches(valid_x,valid_y,batch_size)
-val_batch_num = len(val_batches)
-
-for xb,yb in val_batches:
-    h1 = forward(xb, params, 'layer1')
-    probs = forward(h1,params,'output',softmax)
-
-    _, acc = compute_loss_and_acc(yb, probs)
-    valid_acc += acc
-
-valid_acc /= val_batch_num
-
+# already got during training!
 
 print('Validation accuracy: ',valid_acc)
 if False: # view the data
@@ -123,6 +120,27 @@ import pickle
 saved_params = {k:v for k,v in params.items() if '_' not in k}
 with open('q3_weights.pickle', 'wb') as handle:
     pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# draw plots
+epochs = list(range(max_iters))
+
+plt.figure("Accuracy")
+plt.title("train / valid acc over epochs")
+plt.xlabel("Epochs") 
+plt.ylabel("Accuracy") 
+plt.plot(epochs, train_accs, label = "train acc") 
+plt.plot(epochs, val_accs, label = "valid acc") 
+plt.legend()
+plt.savefig("Accuracy")
+#plt.show()
+
+plt.figure("Loss")
+plt.title("Averaged loss over epochs")
+plt.xlabel("Epochs") 
+plt.ylabel("Loss") 
+plt.plot(epochs, avg_loss) 
+plt.savefig("Loss")
+#plt.show()
 
 # Q3.1.3
 weight_visualize("weight_learned.jpg")
@@ -151,7 +169,7 @@ displayed[1::2] = vis
 for ax, im in zip(grid, displayed):
     ax.imshow(im.T)
 plt.savefig("out.jpg")
-plt.show()
+#plt.show()
 
 # Q3.1.5
 confusion_matrix = np.zeros((train_y.shape[1],train_y.shape[1]))
@@ -166,4 +184,4 @@ plt.imshow(confusion_matrix,interpolation='nearest')
 plt.grid(True)
 plt.xticks(np.arange(36),string.ascii_uppercase[:26] + ''.join([str(_) for _ in range(10)]))
 plt.yticks(np.arange(36),string.ascii_uppercase[:26] + ''.join([str(_) for _ in range(10)]))
-plt.show()
+#plt.show()
