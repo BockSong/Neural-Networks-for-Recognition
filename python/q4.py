@@ -21,4 +21,32 @@ def findLetters(image):
     ##### your code here #####
     ##########################
 
+    # blur or denoise
+    #blur = skimage.filters.gaussian(image)
+    denoise = skimage.restoration.denoise_bilateral(image, multichannel=True)
+
+    # greyscale
+    grey = skimage.color.rgb2gray(denoise)
+
+    # threshold
+    thresh = skimage.filters.threshold_otsu(grey)
+    binary = grey <= thresh
+
+    # morphology
+    cl = skimage.morphology.opening(binary, skimage.morphology.square(5))
+    bw = cl.astype(np.float)
+    print(bw)
+
+    # labeling using grouping method
+    label_img = skimage.measure.label(cl, connectivity=2)
+    props = skimage.measure.regionprops(label_img)
+
+    # add bboxes and skip small boxes
+    mean_area = sum([x.area for x in props]) / len(props)
+    thresh_area = mean_area / 2.
+
+    for x in props:
+        if x.area > thresh_area:
+            bboxes.append(x.bbox)
+
     return bboxes, bw
