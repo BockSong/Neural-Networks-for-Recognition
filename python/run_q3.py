@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
+test_data = scipy.io.loadmat('../data/nist36_test.mat')
 valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 
 train_x, train_y = train_data['train_data'], train_data['train_labels']
+test_x, test_y = test_data['test_data'], test_data['test_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 
 max_iters = 50
@@ -24,7 +26,8 @@ output_size = 36
 
 batches = get_random_batches(train_x,train_y,batch_size)
 batch_num = len(batches)
-data_num = len(train_y)
+train_data_num = len(train_y)
+val_data_num = len(valid_y)
 
 params = {}
 
@@ -54,12 +57,18 @@ def weight_visualize(name):
 weight_visualize("weight_init.jpg")
 
 # draw plots
-train_accs, val_accs, avg_loss = [], [], []
+train_accs, val_accs, train_loss, val_loss = [], [], [], []
 
 # with default settings, you should get loss < 150 and accuracy > 80%
 for itr in range(max_iters):
     total_loss = 0
     total_acc = 0
+    
+    h1 = forward(valid_x, params, 'layer1')
+    probs = forward(h1,params,'output',softmax)
+    valid_loss, valid_acc = compute_loss_and_acc(valid_y, probs)
+    valid_loss /= val_data_num
+
     for xb,yb in batches:
         # training loop can be exactly the same as q2!
         ##########################
@@ -90,18 +99,15 @@ for itr in range(max_iters):
         params['b' + "layer1"] -= learning_rate * params['grad_b' + "layer1"]
 
     total_acc /= batch_num
-    total_loss /= data_num
-
-    h1 = forward(valid_x, params, 'layer1')
-    probs = forward(h1,params,'output',softmax)
-    _, valid_acc = compute_loss_and_acc(valid_y, probs)
+    total_loss /= train_data_num
 
     if (itr+1) % 2 == 0:
         print("itr: {:02d} \t loss: {:.2f} \t train acc : {:.2f} \t val acc : {:.2f}".format((itr+1),total_loss,total_acc,valid_acc))
 
     train_accs.append(total_acc)
     val_accs.append(valid_acc)
-    avg_loss.append(total_loss)
+    train_loss.append(total_loss)
+    val_loss.append(valid_loss)
 
 # run on validation set and report accuracy! should be above 75%
 #valid_acc = None
@@ -138,9 +144,17 @@ plt.figure("Loss")
 plt.title("Averaged loss over epochs")
 plt.xlabel("Epochs") 
 plt.ylabel("Loss") 
-plt.plot(epochs, avg_loss) 
+plt.plot(epochs, train_loss, label = "train loss") 
+plt.plot(epochs, val_loss, label = "valid loss") 
+plt.legend()
 plt.savefig("Loss")
 #plt.show()
+
+# evaluate on test set
+h1_test = forward(test_x, params, 'layer1')
+probs_test = forward(h1_test,params,'output',softmax)
+_, test_acc = compute_loss_and_acc(test_y, probs_test)
+print('Test accuracy: ',test_acc)
 
 # Q3.1.3
 weight_visualize("weight_learned.jpg")
@@ -178,10 +192,16 @@ confusion_matrix = np.zeros((train_y.shape[1],train_y.shape[1]))
 ##########################
 ##### your code here #####
 ##########################
+label = np.argmax(test_y, axis=1)
+pred = np.argmax(probs_test, axis=1)
+for i in range(len(pred)):
+    confusion_matrix[label[i]][pred[i]] += 1
 
 import string
+plt.figure("conf")
 plt.imshow(confusion_matrix,interpolation='nearest')
 plt.grid(True)
 plt.xticks(np.arange(36),string.ascii_uppercase[:26] + ''.join([str(_) for _ in range(10)]))
 plt.yticks(np.arange(36),string.ascii_uppercase[:26] + ''.join([str(_) for _ in range(10)]))
+plt.savefig("conf")
 #plt.show()
