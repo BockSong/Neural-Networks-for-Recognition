@@ -47,11 +47,11 @@ for idx, img in enumerate(os.listdir('../images')):
     ##########################
     
     # load the weights
-    # run the crops through your neural network and print them out
     import pickle
     import string
     letters = np.array([_ for _ in string.ascii_uppercase[:26]] + [str(_) for _ in range(10)])
     params = pickle.load(open('q3_weights.pickle','rb'))
+    # run the crops through your neural network and print them out
     ##########################
     ##### your code here #####
     ##########################
