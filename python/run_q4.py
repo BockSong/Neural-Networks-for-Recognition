@@ -20,17 +20,19 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 
-for img in os.listdir('../images'):
+for idx, img in enumerate(os.listdir('../images')):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
     bboxes, bw = findLetters(im1)
 
-    plt.imshow(bw)
+    plt.figure(str(idx))
+    plt.imshow(bw, cmap='gray')
     for bbox in bboxes:
         minr, minc, maxr, maxc = bbox
         rect = matplotlib.patches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                                 fill=False, edgecolor='red', linewidth=2)
         plt.gca().add_patch(rect)
-    plt.show()
+    plt.savefig("vis42_" + str(idx))
+    #plt.show()
     # find the rows using..RANSAC, counting, clustering, etc.
     ##########################
     ##### your code here #####

@@ -32,10 +32,11 @@ def findLetters(image):
     thresh = skimage.filters.threshold_otsu(grey)
     binary = grey <= thresh
 
-    # morphology
-    cl = skimage.morphology.opening(binary, skimage.morphology.square(5))
-    bw = cl.astype(np.float)
-    print(bw)
+    # morphology: using opening may fail some case. closing() is good
+    cl = skimage.morphology.closing(binary, skimage.morphology.square(5))
+    bw = (~cl).astype(np.float)
+    #np.set_printoptions(threshold=np.inf)
+    #print(cl[:500,:500])
 
     # labeling using grouping method
     label_img = skimage.measure.label(cl, connectivity=2)
