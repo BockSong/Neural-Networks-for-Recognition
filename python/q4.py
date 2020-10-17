@@ -32,8 +32,8 @@ def findLetters(image):
     thresh = skimage.filters.threshold_otsu(grey)
     binary = grey <= thresh
 
-    # morphology: using opening may fail some case. closing() is good
-    cl = skimage.morphology.closing(binary, skimage.morphology.square(5))
+    # morphology: using opening may fail; lower para in sqaure() may lead to failure
+    cl = skimage.morphology.closing(binary, skimage.morphology.square(7))
     bw = (~cl).astype(np.float)
     #np.set_printoptions(threshold=np.inf)
     #print(cl[:500,:500])
@@ -44,7 +44,7 @@ def findLetters(image):
 
     # add bboxes and skip small boxes
     mean_area = sum([x.area for x in props]) / len(props)
-    thresh_area = mean_area / 2.
+    thresh_area = mean_area / 3.
 
     for x in props:
         if x.area > thresh_area:
