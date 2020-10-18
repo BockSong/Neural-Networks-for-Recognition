@@ -7,7 +7,6 @@ from torch.utils.data import Dataset, TensorDataset, DataLoader
 from torchvision import transforms, datasets, models
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
 
 max_iters = 50
 batch_size = 8
@@ -76,25 +75,23 @@ if __name__ == '__main__':
     print(model)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
     # Training model
     device = torch.device("cuda" if cuda else "cpu")
     model.to(device)
 
+    train_accs, train_loss = [], []
+
     for epoch in range(max_iters):
         model.train()
-        running_loss, acc = 0, 0
+        running_loss, running_acc = 0, 0
 
         for batch_num, (feats, labels) in enumerate(train_loader):
             feats, labels = feats.to(device), labels.to(device)
             
             optimizer.zero_grad()
             outputs = model(feats)
-
-            _, pred_labels = torch.max(nn.functional.softmax(outputs, dim=1), 1)
-            pred_labels = pred_labels.view(-1)
-            acc += torch.sum(torch.eq(pred_labels, labels.long())).item()
 
             #print(outputs.size())
             #print(labels.size())
@@ -104,12 +101,36 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
             
+            _, pred_labels = torch.max(outputs, 1)
+            running_acc += torch.sum(torch.eq(pred_labels, labels.long())).item()
+
             torch.cuda.empty_cache()
             del feats, labels, loss
         
-        train_loss, train_acc = running_loss / len(train_loader), acc / train_data_num
+        this_loss, this_acc = running_loss / len(train_loader), running_acc / train_data_num
         #val_loss, val_acc = test(model, val_batches, device)
 
         print('Epoch ', epoch + 1, ': ', end='')
-        print('Train Loss: {:.4f}\tTrain Accuracy: {:.4f}'.format(train_loss, train_acc))
+        print('Train Loss: {:.4f}\tTrain Accuracy: {:.4f}'.format(this_loss, this_acc))
+
+        train_accs.append(this_acc)
+        train_loss.append(this_loss)
         
+    # draw plots
+    epochs = list(range(max_iters))
+
+    plt.figure("Accuracy")
+    plt.title("Acc over epochs")
+    plt.xlabel("Epochs") 
+    plt.ylabel("Accuracy") 
+    plt.plot(epochs, train_accs) 
+    plt.savefig("711Accuracy")
+    #plt.show()
+
+    plt.figure("Loss")
+    plt.title("Averaged loss over epochs")
+    plt.xlabel("Epochs") 
+    plt.ylabel("Loss") 
+    plt.plot(epochs, train_loss) 
+    plt.savefig("711Loss")
+    #plt.show()
