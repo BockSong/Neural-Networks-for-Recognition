@@ -43,10 +43,7 @@ for idx, img in enumerate(os.listdir('../images')):
     heights = [b[2] - b[0] for b in bboxes]
     mean_height = sum(heights) / len(heights)
     
-    #xywh = [((b[1]+b[3])//2, (b[0]+b[2])//2, b[3]-b[1], b[2]-b[0]) for b in bboxes]
-
     # sort
-    #xywh = sorted(xywh, key=lambda b:b[1])
     bboxes = sorted(bboxes, key=lambda b:b[0])
 
     # row clustering
@@ -73,18 +70,17 @@ for idx, img in enumerate(os.listdir('../images')):
     for row in rows:
         line = []
         for bbox in row:
-            #print(bbox)
-            #minr, minc, maxr, maxc = bbox[1]-bbox[3]//2, bbox[0]-bbox[2]//2, bbox[1]+bbox[3]//2, bbox[0]+bbox[2]//2
             minr, minc, maxr, maxc = bbox[0], bbox[1], bbox[2], bbox[3]
-            #print(minr, minc, maxr, maxc)
-            cropped = bw[minr:maxr, minr:maxr]
+            cropped = bw[minr:maxr, minc:maxc]
+
             # padding
-            if bbox[2] > bbox[3]:
+            w, h = maxc - minc, maxr - minr
+            if w > h:
                 w_pad = 0
-                h_pad = (bbox[2] - bbox[3]) // 2
+                h_pad = (w - h) // 2
             else:
                 h_pad = 0
-                w_pad = (bbox[3] - bbox[2]) // 2
+                w_pad = (h - w) // 2
             p = np.pad(cropped, ((h_pad, h_pad), (w_pad, w_pad)), mode='constant', constant_values=(1, 1))
             res = skimage.transform.resize(p, (32, 32))
             trans = np.transpose(res)
@@ -102,7 +98,8 @@ for idx, img in enumerate(os.listdir('../images')):
     ##########################
     ##### your code here #####
     ##########################
-    idx2str = string.ascii_uppercase + string.digits
+    #idx2str = string.ascii_uppercase + string.digits
+    #print(idx2str)
     text = ""
 
     for line in lines:
@@ -111,7 +108,7 @@ for idx, img in enumerate(os.listdir('../images')):
             h1 = forward(input, params, 'layer1')
             probs = forward(h1,params,'output',softmax)
             pred = np.argmax(probs, axis=1)
-            text += idx2str[pred[0]]
+            text += letters[pred[0]]
         text += "\n"
 
     print(text)
