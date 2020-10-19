@@ -8,7 +8,7 @@ from torchvision import transforms, datasets, models
 
 import matplotlib.pyplot as plt
 
-max_iters = 30
+max_iters = 40
 batch_size = 8
 learning_rate = 1e-3
 input_size = 28 # 28 * 28 = 784
@@ -67,6 +67,11 @@ if __name__ == '__main__':
     print(train_data_num)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+
+    test_dataset = datasets.ImageFolder(root='../data/oxford-flowers17/test',
+                                            transform=data_transform)
+    test_data_num = len(test_dataset)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # define model
     model = ConvNet(input_size, cnn_layers, linear_layers, feat_dim=3)
@@ -132,3 +137,18 @@ if __name__ == '__main__':
     plt.plot(epochs, train_loss) 
     plt.savefig("721fsLoss")
     #plt.show()
+
+    model.eval()
+    accuracy = 0
+
+    for batch_num, (feats, labels) in enumerate(test_loader):
+        feats, labels = feats.to(device), labels.to(device)
+        outputs = model(feats)
+        
+        _, pred_labels = torch.max(nn.functional.softmax(outputs, dim=1), 1)
+        pred_labels = pred_labels.view(-1)
+        accuracy += torch.sum(torch.eq(pred_labels, labels.long())).item()
+
+        del feats, labels
+
+    print(accuracy / test_data_num)

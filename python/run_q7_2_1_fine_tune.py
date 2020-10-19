@@ -34,6 +34,11 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
+    test_dataset = datasets.ImageFolder(root='../data/oxford-flowers17/test',
+                                            transform=data_transform)
+    test_data_num = len(test_dataset)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+
     # load pre-trained model
     model = models.squeezenet1_1(pretrained=True)
 
@@ -107,3 +112,18 @@ if __name__ == '__main__':
     plt.plot(epochs, train_loss) 
     plt.savefig("721ftLoss")
     #plt.show()
+
+    model.eval()
+    accuracy = 0
+
+    for batch_num, (feats, labels) in enumerate(test_loader):
+        feats, labels = feats.to(device), labels.to(device)
+        outputs = model(feats)
+        
+        _, pred_labels = torch.max(nn.functional.softmax(outputs, dim=1), 1)
+        pred_labels = pred_labels.view(-1)
+        accuracy += torch.sum(torch.eq(pred_labels, labels.long())).item()
+
+        del feats, labels
+
+    print(accuracy / test_data_num)
