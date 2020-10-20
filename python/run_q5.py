@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.io
 from nn import *
+from util import *
 from collections import Counter
 
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
@@ -26,10 +27,23 @@ params = Counter()
 ##########################
 ##### your code here #####
 ##########################
+input_size = 1024
+hidden1_size = 32
+hidden2_size = 32
+hidden3_size = 32
+output_size = 1024
+
+initialize_weights(input_size, hidden1_size, params, 'layer1')
+initialize_weights(hidden1_size, hidden2_size, params, 'layer2')
+initialize_weights(hidden2_size, hidden3_size, params, 'layer3')
+initialize_weights(hidden3_size, output_size, params, 'output')
+assert(params['Wlayer1'].shape == (input_size, hidden1_size))
+assert(params['blayer1'].shape == (hidden1_size, ))
 
 # should look like your previous training loops
 for itr in range(max_iters):
     total_loss = 0
+    total_acc = 0
     for xb,_ in batches:
         # training loop can be exactly the same as q2!
         # your loss is now squared error
@@ -43,6 +57,37 @@ for itr in range(max_iters):
         ##########################
         ##### your code here #####
         ##########################
+        # forward
+        h1 = forward(xb, params, 'layer1', relu)
+        h2 = forward(h1, params, 'layer2', relu)
+        h3 = forward(h2, params, 'layer3', relu)
+        pred = forward(h3, params, 'output', sigmoid)
+
+        # loss
+        #print("input shape: " + str(yb.shape) + str(probs.shape))
+        loss = np.sum(np.square(xb - pred))
+        # be sure to add loss and accuracy to epoch totals 
+        total_loss += loss
+
+        # backward
+        delta1 = 2 * (xb - pred)
+        delta2 = backwards(delta1,params,'output',sigmoid_deriv)
+        delta3 = backwards(delta2,params,'layer3',relu_deriv)
+        delta4 = backwards(delta3,params,'layer2',relu_deriv)
+        delta5 = backwards(delta4,params,'layer1',relu_deriv)
+
+        # apply gradient
+        params['W' + "output"] -= learning_rate * params['grad_W' + "output"]
+        params['b' + "output"] -= learning_rate * params['grad_b' + "output"]
+
+        params['W' + "layer3"] -= learning_rate * params['grad_W' + "layer3"]
+        params['b' + "layer3"] -= learning_rate * params['grad_b' + "layer3"]
+
+        params['W' + "layer2"] -= learning_rate * params['grad_W' + "layer2"]
+        params['b' + "layer2"] -= learning_rate * params['grad_b' + "layer2"]
+
+        params['W' + "layer1"] -= learning_rate * params['grad_W' + "layer1"]
+        params['b' + "layer1"] -= learning_rate * params['grad_b' + "layer1"]
 
     if itr % 2 == 0:
         print("itr: {:02d} \t loss: {:.2f}".format(itr,total_loss))

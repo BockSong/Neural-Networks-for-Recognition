@@ -39,7 +39,7 @@ initialize_weights(input_size, hidden_size, params, 'layer1')
 initialize_weights(hidden_size, output_size, params, 'output')
 assert(params['Wlayer1'].shape == (input_size, hidden_size))
 assert(params['blayer1'].shape == (hidden_size, ))
-
+#'''
 # Q3.1.3
 def weight_visualize(name):
     fig = plt.figure(1, (8., 8.))
@@ -155,13 +155,22 @@ h1_test = forward(test_x, params, 'layer1')
 probs_test = forward(h1_test,params,'output',softmax)
 _, test_acc = compute_loss_and_acc(test_y, probs_test)
 print('Test accuracy: ',test_acc)
+'''
+import pickle
+params = pickle.load(open('q3_weights.pickle','rb'))
+'''
+# evaluate on val set
+h1_val = forward(valid_x, params, 'layer1')
+probs_val = forward(h1_val,params,'output',softmax)
+_, val_acc = compute_loss_and_acc(valid_y, probs_val)
+print('Val accuracy: ',val_acc)
 
 # Q3.1.3
-weight_visualize("weight_learned.jpg")
+#weight_visualize("weight_learned.jpg")
 
 # Q3.1.4
 
-fig = plt.figure(1, (6., 8.))
+fig = plt.figure(2, (6., 8.))
 grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(12, 6),  # creates 2x2 grid of axes
                  axes_pad=0.1,  # pad between axes in inch.
@@ -183,7 +192,7 @@ displayed[1::2] = vis
 for ax, im in zip(grid, displayed):
     ax.imshow(im.T)
 plt.savefig("out.jpg")
-#plt.show()
+plt.show()
 
 # Q3.1.5
 confusion_matrix = np.zeros((train_y.shape[1],train_y.shape[1]))
