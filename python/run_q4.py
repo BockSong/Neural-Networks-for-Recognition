@@ -43,7 +43,7 @@ for idx, img in enumerate(os.listdir('../images')):
     heights = [b[2] - b[0] for b in bboxes]
     mean_height = sum(heights) / len(heights)
     
-    # sort
+    # sort by rows
     bboxes = sorted(bboxes, key=lambda b:b[0])
 
     # row clustering
@@ -51,13 +51,18 @@ for idx, img in enumerate(os.listdir('../images')):
     row = []
     line_bottom = bboxes[0][2]
     for bbox in bboxes:
-        if bbox[0] < line_bottom + mean_height:
+        if bbox[2] < line_bottom + mean_height:
+            # if in the same row
             row.append(bbox)
         else:
+            # sort by columns and save the current row
+            row = sorted(row, key=lambda b:b[1])
             rows.append(row)
-            # start new row
+            # start a new row
             row = [bbox]
             line_bottom = bbox[2]
+    # sort and add last row
+    row = sorted(row, key=lambda b:b[1])
     rows.append(row)
 
     # crop the bounding boxes
@@ -67,23 +72,33 @@ for idx, img in enumerate(os.listdir('../images')):
     ##### your code here #####
     ##########################
     lines = []
-    for row in rows:
+    for i, row in enumerate(rows):
         line = []
-        for bbox in row:
+        for j, bbox in enumerate(row):
             minr, minc, maxr, maxc = bbox[0], bbox[1], bbox[2], bbox[3]
             cropped = bw[minr:maxr, minc:maxc]
-
+            
             # padding
             w, h = maxc - minc, maxr - minr
             if w > h:
-                w_pad = 0
-                h_pad = (w - h) // 2
+                w_pad = w // 8
+                h_pad = (w - h) // 2 + w_pad
             else:
-                h_pad = 0
-                w_pad = (h - w) // 2
+                h_pad = h // 8
+                w_pad = (h - w) // 2 + h_pad
             p = np.pad(cropped, ((h_pad, h_pad), (w_pad, w_pad)), mode='constant', constant_values=(1, 1))
             res = skimage.transform.resize(p, (32, 32))
-            trans = np.transpose(res)
+            
+            # greyscale morphological erosion
+            mor = skimage.morphology.erosion(res, skimage.morphology.square(3))
+            
+            # transpose to match training dataset style
+            trans = np.transpose(mor)
+            '''
+            plt.figure(str(i) + ", " + str(j))
+            plt.imshow(trans, cmap='gray')
+            plt.show()
+            '''
             flat = np.reshape(trans, (1, -1))
             line.append(flat)
 

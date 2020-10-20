@@ -34,7 +34,7 @@ def findLetters(image):
 
     # morphology: using opening may fail; lower para in sqaure() may lead to failure
     cl = skimage.morphology.closing(binary, skimage.morphology.square(7))
-    bw = (~cl).astype(np.float)
+    bw = (1 - cl).astype(np.float)
     #np.set_printoptions(threshold=np.inf)
     #print(cl[:500,:500])
 
