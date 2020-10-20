@@ -32,6 +32,7 @@ hidden1_size = 32
 hidden2_size = 32
 hidden3_size = 32
 output_size = 1024
+momentum = 0.9
 
 initialize_weights(input_size, hidden1_size, params, 'layer1')
 initialize_weights(hidden1_size, hidden2_size, params, 'layer2')
@@ -39,6 +40,9 @@ initialize_weights(hidden2_size, hidden3_size, params, 'layer3')
 initialize_weights(hidden3_size, output_size, params, 'output')
 assert(params['Wlayer1'].shape == (input_size, hidden1_size))
 assert(params['blayer1'].shape == (hidden1_size, ))
+
+for key in params.keys():
+    params[key + "_m"] = np.zeros_like(params[key])
 
 # should look like your previous training loops
 for itr in range(max_iters):
@@ -77,17 +81,25 @@ for itr in range(max_iters):
         delta5 = backwards(delta4,params,'layer1',relu_deriv)
 
         # apply gradient
-        params['W' + "output"] -= learning_rate * params['grad_W' + "output"]
-        params['b' + "output"] -= learning_rate * params['grad_b' + "output"]
+        params['W' + "output" + "_m"] = params['W' + "output" + "_m"] * momentum - learning_rate * params['grad_W' + "output"]
+        params['b' + "output" + "_m"] = params['b' + "output" + "_m"] * momentum - learning_rate * params['grad_b' + "output"]
+        params['W' + "output"] += params['W' + "output" + "_m"]
+        params['b' + "output"] += params['b' + "output" + "_m"]
 
-        params['W' + "layer3"] -= learning_rate * params['grad_W' + "layer3"]
-        params['b' + "layer3"] -= learning_rate * params['grad_b' + "layer3"]
+        params['W' + "layer3" + "_m"] = params['W' + "layer3" + "_M"] * momentum - learning_rate * params['grad_W' + "layer3"]
+        params['b' + "layer3" + "_m"] = params['b' + "layer3" + "_M"] * momentum - learning_rate * params['grad_b' + "layer3"]
+        params['W' + "layer3"] += params['W' + "layer3" + "_M"]
+        params['b' + "layer3"] += params['b' + "layer3" + "_M"]
 
-        params['W' + "layer2"] -= learning_rate * params['grad_W' + "layer2"]
-        params['b' + "layer2"] -= learning_rate * params['grad_b' + "layer2"]
+        params['W' + "layer2" + "_m"] = params['W' + "layer2" + "_m"] * momentum - learning_rate * params['grad_W' + "layer2"]
+        params['b' + "layer2" + "_m"] = params['b' + "layer2" + "_m"] * momentum - learning_rate * params['grad_b' + "layer2"]
+        params['W' + "layer2"] += params['W' + "layer2" + "_M"]
+        params['b' + "layer2"] += params['b' + "layer2" + "_M"]
 
-        params['W' + "layer1"] -= learning_rate * params['grad_W' + "layer1"]
-        params['b' + "layer1"] -= learning_rate * params['grad_b' + "layer1"]
+        params['W' + "layer1" + "_m"] = params['W' + "layer1" + "_m"] * momentum - learning_rate * params['grad_W' + "layer1"]
+        params['b' + "layer1" + "_m"] = params['b' + "layer1" + "_m"] * momentum - learning_rate * params['grad_b' + "layer1"]
+        params['W' + "layer1"] += params['W' + "layer1" + "_M"]
+        params['b' + "layer1"] += params['b' + "layer1" + "_M"]
 
     if itr % 2 == 0:
         print("itr: {:02d} \t loss: {:.2f}".format(itr,total_loss))
