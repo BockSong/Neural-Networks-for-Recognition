@@ -74,7 +74,7 @@ if __name__ == '__main__':
     # define model
     model = ConvNet(input_size, cnn_layers, linear_layers, feat_dim=1)
     print(model)
-    '''
+    #'''
     # Training model
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -118,8 +118,8 @@ if __name__ == '__main__':
         train_loss.append(this_loss)
     
     torch.save(model.state_dict(),'./q7_1_4_weights.pkl')
-    '''
-    model.load_state_dict(torch.load('./q7_1_4_weights.pkl'))
+    #'''
+    #model.load_state_dict(torch.load('./q7_1_4_weights.pkl'))
 
     # evaluate on findLetters
     for idx, img in enumerate(os.listdir('../images')):

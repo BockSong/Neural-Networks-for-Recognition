@@ -121,7 +121,7 @@ saved_params = {k:v for k,v in params.items() if '_' not in k}
 with open('q5_weights.pickle', 'wb') as handle:
     pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
 #'''
-params = pickle.load(open('q5_weights.pickle','rb'))
+#params = pickle.load(open('q5_weights.pickle','rb'))
 
 # Q5.3.1
 #import matplotlib.pyplot as plt

@@ -16,7 +16,7 @@ dim = 32
 ##########################
 ##### your code here #####
 ##########################
-'''
+#'''
 mean_ = np.mean(train_x, axis=0)
 X = train_x - mean_
 U, S, V = np.linalg.svd(X)
@@ -30,7 +30,7 @@ lrank = np.dot(X, np.transpose(projection_m))
 # rebuild it
 recon = np.dot(lrank, projection_m)
 recon += mean_
-'''
+#'''
 # build valid dataset
 recon_valid = None
 ##########################

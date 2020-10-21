@@ -30,30 +30,6 @@ class MyNet(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-'''
-def test(model, data_loader, device):
-    model.eval()
-    test_loss = []
-    accuracy, total = 0, 0
-
-    for batch_num, (feats, labels) in enumerate(data_loader):
-        feats, labels = feats.to(device), labels.to(device)
-        outputs = model(feats)
-        
-        _, pred_labels = torch.max(nn.functional.softmax(outputs, dim=1), 1)
-        pred_labels = pred_labels.view(-1)
-        
-        loss = criterion(outputs, labels.long())
-        
-        accuracy += torch.sum(torch.eq(pred_labels, labels.long())).item()
-        total += len(labels)
-        test_loss.extend([loss.item()]*feats.size()[0])
-        del feats
-        del labels
-
-    return np.mean(test_loss), accuracy / total
-'''
-
 if __name__ == '__main__':
     cuda = torch.cuda.is_available()
     print("IF_CUDA: ", cuda)
