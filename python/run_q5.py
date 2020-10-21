@@ -48,7 +48,7 @@ assert(params['blayer1'].shape == (hidden1_size, ))
 keys = [k for k in params.keys()]
 for key in keys:
     params[key + "_m"] = np.zeros_like(params[key])
-'''
+#'''
 train_loss = []
 
 # should look like your previous training loops
@@ -120,7 +120,7 @@ import pickle
 saved_params = {k:v for k,v in params.items() if '_' not in k}
 with open('q5_weights.pickle', 'wb') as handle:
     pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
-'''
+#'''
 params = pickle.load(open('q5_weights.pickle','rb'))
 
 # Q5.3.1
@@ -129,7 +129,7 @@ params = pickle.load(open('q5_weights.pickle','rb'))
 ##########################
 ##### your code here #####
 ##########################
-'''
+#'''
 for c in range(5):
     for n in range(2):
         input = valid_x[c*100+n].reshape((1, -1))
@@ -150,7 +150,7 @@ for c in range(5):
         plt.imshow(img_rec)
         plt.savefig("531_" + str(c) + str(n) + "_rec")
         #plt.show()
-'''
+#'''
 # Q5.3.2
 from skimage.measure import compare_psnr as psnr
 # evaluate PSNR
