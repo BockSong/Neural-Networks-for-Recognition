@@ -129,6 +129,7 @@ params = pickle.load(open('q5_weights.pickle','rb'))
 ##########################
 ##### your code here #####
 ##########################
+'''
 for c in range(5):
     for n in range(2):
         input = valid_x[c*100+n].reshape((1, -1))
@@ -149,10 +150,17 @@ for c in range(5):
         plt.imshow(img_rec)
         plt.savefig("531_" + str(c) + str(n) + "_rec")
         #plt.show()
-
+'''
 # Q5.3.2
 from skimage.measure import compare_psnr as psnr
 # evaluate PSNR
 ##########################
 ##### your code here #####
 ##########################
+h1 = forward(valid_x, params, 'layer1', relu)
+h2 = forward(h1, params, 'layer2', relu)
+h3 = forward(h2, params, 'layer3', relu)
+pred = forward(h3, params, 'output', sigmoid)
+
+avg_psnr = psnr(valid_x, pred)
+print(avg_psnr)
